@@ -19,7 +19,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // 1. Validamos si hay datos del usuario en el localStorage
     const storedRole = localStorage.getItem("userRole");
-    const storedEmail = localStorage.getItem("userEmail");
+    const storedEmail = localStorage.getItem("userEmail" );
 
     if (!storedRole || !storedEmail) {
       // Si no hay datos, significa que no ha iniciado sesión y lo rebotamos al login
