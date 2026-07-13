@@ -3,7 +3,7 @@ import { AuthProvider } from '@/features/auth';
 import './globals.css'; // Aquí es donde tienes tu @import "tailwindcss";
 
 export const metadata = {
-  title: 'Sistema de Tickets',
+  title: 'ServHub',
   description: 'Gestión eficiente de tickets de soporte',
 };
 

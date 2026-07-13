@@ -56,12 +56,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const changePassword = async (oldPassword, newPassword) => {
+    if (!user?.email) {
+      throw new Error('No se encontró el correo del usuario');
+    }
+
+    try {
+      const response = await authService.changePassword(user.email, oldPassword, newPassword);
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   const value = {
     user,
     loading,
     error,
     login,
     logout,
+    changePassword,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN', // Ajusta según los roles de tu Spring Boot
   };
