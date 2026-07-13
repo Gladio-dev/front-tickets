@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
       // Tras un login exitoso, pedimos la sesión para actualizar el estado global
       const sessionData = await authService.getCurrentSession();
       setUser(sessionData);
-      router.push('/dashboard'); // Redirección automática al entrar
+      router.push('/tickets'); // Redirección automática al entrar
     } catch (err) {
       setError(err.message || 'Credenciales incorrectas');
       throw err;
