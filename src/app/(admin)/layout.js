@@ -45,7 +45,13 @@ export default function AdminLayout({ children }) {
           <span className="text-sm font-medium text-slate-400">
             Modo Dios: <strong className="text-slate-200">{user.username}</strong>
           </span>
-          <Button variant="danger" onClick={logout}>
+          <Button
+            variant="danger"
+            onClick={async () => {
+              await logout();
+              router.push('/login'); // 👈 Expulsión proactiva e inmediata al Login
+            }}
+          >
             Salir
           </Button>
         </div>
@@ -58,18 +64,18 @@ export default function AdminLayout({ children }) {
           <Link
             href="/tickets"
             className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-150
-              ${pathname === '/tickets' 
-                ? 'bg-blue-600 text-white shadow-xs' 
+              ${pathname === '/tickets'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}
           >
             ✦ Consola de Tickets
           </Link>
-          
+
           <Link
             href="/usuarios"
             className={`block px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-150
-              ${pathname === '/usuarios' 
-                ? 'bg-blue-600 text-white shadow-xs' 
+              ${pathname === '/usuarios'
+                ? 'bg-blue-600 text-white shadow-xs'
                 : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}
           >
             📁 Gestionar Usuarios

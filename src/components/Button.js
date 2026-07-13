@@ -13,6 +13,8 @@ export default function Button({ children, type = 'button', variant = 'primary',
       type={type}
       className={`${baseStyles} ${variants[variant]} ${fullWidth ? 'w-full' : ''}`}
       {...props}
-    />
+    >
+      {children} 
+    </button>
   );
 }
