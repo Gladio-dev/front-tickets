@@ -40,8 +40,8 @@ export function RoleShell({ children, requireRole = 'ANY' }) {
 
   if (!user) return null;
 
-  const displayName = user.username || user.name || 'Usuario';
-
+  const displayName = user.email || user.name || 'Usuario';
+  console.log(user)
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -115,7 +115,7 @@ export function RoleShell({ children, requireRole = 'ANY' }) {
       </div>
     );
   }
-
+////////////////// USUARIO LAYOUT //////////////////
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
       <nav className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-xs">
@@ -127,7 +127,7 @@ export function RoleShell({ children, requireRole = 'ANY' }) {
         </div>
         <div className="flex items-center gap-4 relative">
           <span className="text-sm font-medium text-slate-600">
-            Usuario: <strong className="text-slate-900">{displayName}</strong>
+            <strong className="text-slate-900">{displayName}</strong>
           </span>
           <div className="relative">
             <button
