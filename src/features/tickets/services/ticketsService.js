@@ -41,7 +41,7 @@ export const ticketsService = {
   // Obtener detalle de un ticket específico (para después)
   async getTicketDetail(ticketId) {
     try {
-      const response = await apiClient.get(`/api/tickets/${ticketId}`);
+      const response = await api.get(`/tickets/${ticketId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching ticket detail:', error);
@@ -57,7 +57,50 @@ export const ticketsService = {
       console.error('Error sending message:', error);
       throw error;
     }
+  },
+  // Obtener lista de administradores
+async getAdmins() {
+  try {
+    const data = await api.get('/auth/admins');
+    return data;
+  } catch (error) {
+    console.error('Error fetching admins:', error);
+    throw error;
   }
+},
+
+// Asignar un administrador a un ticket
+async assignTicket(ticketId, adminId) {
+  try {
+    const data = await api.put(`/tickets/${ticketId}/assigned`, { id: adminId });
+    return data;
+  } catch (error) {
+    console.error('Error assigning admin:', error);
+    throw error;
+  }
+},
+
+// Cambiar estado a EN_PROGRESO
+async startTicketProcess(ticketId) {
+  try {
+    const data = await api.put(`/tickets/${ticketId}/inprocess`);
+    return data;
+  } catch (error) {
+    console.error('Error starting ticket process:', error);
+    throw error;
+  }
+},
+
+// Cambiar estado a RESUELTO
+async solveTicket(ticketId) {
+  try {
+    const data = await api.put(`/tickets/${ticketId}/solve`);
+    return data;
+  } catch (error) {
+    console.error('Error solving ticket:', error);
+    throw error;
+  }
+},
 
   
 };

@@ -6,29 +6,87 @@ import { ticketsService } from '@/features/tickets/services/ticketsService';
 import { formatDate } from '@/utils/formatters';
 import { TicketDetailModal } from '@/features/tickets/components/TicketDetailModal';
 
-
-
 export function AdminTicketsView() {
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [admins, setAdmins] = useState([]);
 
+  // Estados de filtros
+  const [filters, setFilters] = useState({
+    status: 'TODOS',
+    area: 'TODOS',
+    assignedTo: 'TODOS'
+  });
+
+  // Cargar tickets y admins
   useEffect(() => {
-    async function loadTickets() {
+    async function loadData() {
       try {
         setLoading(true);
+        
+        // Cargar tickets
         const data = await ticketsService.getAllTickets();
-        // Spring Boot puede devolver un array directo o envuelto. Manejamos ambos casos de forma segura:
-        setTickets(Array.isArray(data) ? data : data.content || []);
+        const ticketsData = Array.isArray(data) ? data : data.content || [];
+        setTickets(ticketsData);
+        
+        // Cargar admins para el filtro
+        try {
+          const adminsData = await ticketsService.getAdmins();
+          setAdmins(Array.isArray(adminsData) ? adminsData : []);
+        } catch (err) {
+          console.error('Error cargando admins:', err);
+          setAdmins([]);
+        }
+        
       } catch (err) {
         setError(err.message || 'Error al cargar el listado de tickets');
       } finally {
         setLoading(false);
       }
     }
-    loadTickets();
+    loadData();
   }, []);
+
+  // Aplicar filtros cuando cambian los tickets o los filtros
+  useEffect(() => {
+    applyFilters();
+  }, [tickets, filters]);
+
+  const applyFilters = () => {
+    let result = [...tickets];
+
+    // Filtro por status
+    if (filters.status !== 'TODOS') {
+      result = result.filter(ticket => ticket.status === filters.status);
+    }
+
+    // Filtro por área
+    if (filters.area !== 'TODOS') {
+      result = result.filter(ticket => ticket.area === filters.area);
+    }
+
+    // Filtro por asignado a
+    if (filters.assignedTo === 'SIN_ASIGNAR') {
+      result = result.filter(ticket => !ticket.assignedTo);
+    } else if (filters.assignedTo !== 'TODOS') {
+      const adminId = parseInt(filters.assignedTo);
+      result = result.filter(ticket => ticket.assignedTo?.id === adminId);
+    }
+
+    setFilteredTickets(result);
+  };
+
+  // Función para resetear filtros
+  const resetFilters = () => {
+    setFilters({
+      status: 'TODOS',
+      area: 'TODOS',
+      assignedTo: 'TODOS'
+    });
+  };
 
   // Función para dar un diseño de Badge colorido al Status del ticket
   const getStatusBadge = (status) => {
@@ -38,11 +96,26 @@ export function AdminTicketsView() {
         return base + "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
       case 'EN_PROGRESO':
         return base + "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-      case 'CERRADO':
+      case 'RESUELTO':
         return base + "bg-slate-500/10 text-slate-400 border border-slate-500/20";
       default:
         return base + "bg-blue-500/10 text-blue-400 border border-blue-500/20";
     }
+  };
+
+  // Mapeo de status para mostrar amigable
+  const STATUS_OPTIONS = {
+    TODOS: 'Todos',
+    ABIERTO: 'Abierto',
+    EN_PROCESO: 'En Proceso',
+    RESUELTO: 'Resuelto'
+  };
+
+  // Mapeo de áreas
+  const AREA_OPTIONS = {
+    TODOS: 'Todos',
+    ODOO: 'Odoo',
+    SUPPORT: 'Soporte'
   };
 
   if (loading) {
@@ -76,9 +149,93 @@ export function AdminTicketsView() {
         </p>
       </div>
 
-      {tickets.length === 0 ? (
+      {/* SECCIÓN DE FILTROS */}
+      <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-300">Filtros</h3>
+          <button
+            onClick={resetFilters}
+            className="text-xs text-slate-400 hover:text-white transition-colors"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Filtro por Status */}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">
+              Estado
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              {Object.entries(STATUS_OPTIONS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro por Área */}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">
+              Área
+            </label>
+            <select
+              value={filters.area}
+              onChange={(e) => setFilters({ ...filters, area: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              {Object.entries(AREA_OPTIONS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro por Asignado a */}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">
+              Asignado a
+            </label>
+            <select
+              value={filters.assignedTo}
+              onChange={(e) => setFilters({ ...filters, assignedTo: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="TODOS">Todos</option>
+              <option value="SIN_ASIGNAR">Sin asignar</option>
+              {admins.map((admin) => (
+                <option key={admin.id} value={admin.id.toString()}>
+                  {admin.name || admin.email}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Contador de resultados */}
+        <div className="text-xs text-slate-500 pt-2 border-t border-slate-800/50">
+          Mostrando {filteredTickets.length} de {tickets.length} tickets
+          {Object.values(filters).some(v => v !== 'TODOS') && (
+            <span className="text-blue-400 ml-2">(filtros aplicados)</span>
+          )}
+        </div>
+      </div>
+
+      {/* TABLA DE TICKETS */}
+      {filteredTickets.length === 0 ? (
         <div className="p-12 border border-slate-850 bg-slate-950/30 rounded-2xl text-center text-slate-500">
-          No hay tickets registrados en el sistema de soporte actualmente.
+          {tickets.length === 0 ? (
+            'No hay tickets registrados en el sistema de soporte actualmente.'
+          ) : (
+            'No hay tickets que coincidan con los filtros seleccionados.'
+          )}
         </div>
       ) : (
         <div className="overflow-x-auto border border-slate-800 bg-slate-950/40 rounded-xl shadow-xl">
@@ -88,15 +245,16 @@ export function AdminTicketsView() {
                 <th className="px-6 py-4">Título</th>
                 <th className="px-6 py-4">Área</th>
                 <th className="px-6 py-4">Estado</th>
+                <th className="px-6 py-4">Asignado a</th>
                 <th className="px-6 py-4">Fecha de Creación</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm text-slate-300">
-              {tickets.map((ticket) => (
+              {filteredTickets.map((ticket) => (
                 <tr
                   key={ticket.id}
                   onClick={() => {
-                    setSelectedTicket(ticket); // 👈 Guardamos todo el objeto del ticket
+                    setSelectedTicket(ticket);
                   }}
                   className="hover:bg-slate-800/40 cursor-pointer transition-colors duration-150 group"
                 >
@@ -104,12 +262,28 @@ export function AdminTicketsView() {
                     {ticket.title}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-slate-400">{ticket.area}</span>
+                    <span className="font-medium text-slate-400">
+                      {ticket.area === 'ODOO' ? 'Odoo' : 
+                       ticket.area === 'SUPPORT' ? 'Soporte' : 
+                       ticket.area}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <span className={getStatusBadge(ticket.status)}>
-                      {ticket.status}
+                      {ticket.status === 'EN_PROGRESO' ? 'EN PROCESO' : ticket.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-400">
+                    {ticket.assignedTo ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 text-[10px] font-bold">
+                          {ticket.assignedTo.name?.charAt(0).toUpperCase() || 'A'}
+                        </span>
+                        <span className="text-xs">{ticket.assignedTo.name || ticket.assignedTo.email}</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-500 italic">Sin asignar</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-slate-400 font-mono text-xs">
                     {formatDate(ticket.createdAt)}
@@ -121,10 +295,10 @@ export function AdminTicketsView() {
         </div>
       )}
 
-      {/* Aquí inyectaremos el componente <TicketDetailModal /> en el siguiente paso */}
+      {/* Modal de detalle */}
       {selectedTicket && (
         <TicketDetailModal
-          ticket={selectedTicket} // 👈 Pasamos el objeto ticket entero
+          ticket={selectedTicket}
           onClose={() => setSelectedTicket(null)}
         />
       )}
