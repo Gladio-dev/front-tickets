@@ -64,13 +64,13 @@ export function RoleShell({ children, requireRole = 'ANY' }) {
       <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
         <nav className="bg-slate-950 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
           <div className="flex items-center gap-3">
-            <span className="text-xl font-black tracking-wider text-blue-400">
-              TICKET_FLOW // <span className="text-red-400 font-bold">ADMIN</span>
-            </span>
+            <Link href="/tickets" className="text-xl font-black tracking-wider text-blue-400">
+              Portal de Tickets
+            </Link>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-slate-400">
-              Modo Dios: <strong className="text-slate-200">{displayName}</strong>
+            <span >
+              <strong className="text-sm font-medium text-slate-400 text-slate-200">{displayName}</strong>
             </span>
             <Button
               variant="danger"
@@ -120,7 +120,7 @@ export function RoleShell({ children, requireRole = 'ANY' }) {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
       <nav className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-xs">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight text-blue-600">TicketFlow</span>
+          <span className="text-xl font-bold tracking-tight text-blue-600">Portal de Tickets</span>
           <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
             Cliente
           </span>
