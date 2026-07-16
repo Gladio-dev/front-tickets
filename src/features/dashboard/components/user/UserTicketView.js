@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth';
 import { ticketsService } from '@/features/tickets/services/ticketsService';
-import { CreateTicketModal } from './CreateTicketModal';
-import { UserTicketDetailModal } from './UserTicketDetailModal'; // ← NUEVO IMPORT
+import { CreateTicketModal } from './modals/CreateTicketModal';
+import { UserTicketDetailModal } from './modals/UserTicketDetailModal'; // ← NUEVO IMPORT
 
 // Mapeo de status a versiones amigables
 const STATUS_MAP = {

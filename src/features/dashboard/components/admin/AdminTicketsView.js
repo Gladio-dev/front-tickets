@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { ticketsService } from '@/features/tickets/services/ticketsService';
 import { formatDate } from '@/utils/formatters';
-import { TicketDetailModal } from '@/features/tickets/components/TicketDetailModal';
+import { TicketDetailModal } from '@/features/tickets/components/AdminTicketDetailModal';
 
 export function AdminTicketsView() {
   const [tickets, setTickets] = useState([]);
@@ -30,6 +30,7 @@ export function AdminTicketsView() {
         // Cargar tickets
         const data = await ticketsService.getAllTickets();
         const ticketsData = Array.isArray(data) ? data : data.content || [];
+        console.log(ticketsData);
         setTickets(ticketsData);
         
         // Cargar admins para el filtro
@@ -74,7 +75,20 @@ export function AdminTicketsView() {
     } else if (filters.assignedTo !== 'TODOS') {
       const adminId = parseInt(filters.assignedTo);
       result = result.filter(ticket => ticket.assignedTo?.id === adminId);
-    }
+    } 
+
+        // Filtro por compañia
+    if (filters.company == 'GLADIO') {
+      result = result.filter(ticket => ticket.user.company === 'GLADIO');
+    } else if (filters.company == 'RSEGURIDAD') {
+      result = result.filter(ticket => ticket.user.company === 'RSEGURIDAD');
+    }else if (filters.company == 'BLUCOBALTO') {
+      result = result.filter(ticket => ticket.user.company === 'BLUCOBALTO');
+    }else if (filters.company == 'NPLUS') {
+      result = result.filter(ticket => ticket.user.company === 'NPLUS');
+    }else if (filters.company == 'ROSSOMORO') {
+      result = result.filter(ticket => ticket.user.company === 'ROSSOMORO');
+    } 
 
     setFilteredTickets(result);
   };
@@ -116,6 +130,14 @@ export function AdminTicketsView() {
     TODOS: 'Todos',
     ODOO: 'Odoo',
     SUPPORT: 'Soporte'
+  };
+    const COMPANY_OPTIONS = {
+    TODOS: 'Todos',
+    GLADIO: 'Gladio',
+    RSEGURIDAD: 'Rseguridad',
+    BLUCOBALTO: 'Blucobalto',
+    NPLUS: 'Nplus',
+    ROSSOMORO: 'Rossomoro'
   };
 
   if (loading) {
@@ -161,7 +183,7 @@ export function AdminTicketsView() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Filtro por Status */}
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1.5">
@@ -217,6 +239,23 @@ export function AdminTicketsView() {
               ))}
             </select>
           </div>
+          {/* Filtro por Compañia */}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">
+              Compañia
+            </label>
+            <select
+              value={filters.company}
+              onChange={(e) => setFilters({ ...filters, company: e.target.value })}
+              className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              {Object.entries(COMPANY_OPTIONS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Contador de resultados */}
@@ -242,11 +281,13 @@ export function AdminTicketsView() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950 text-xs font-bold uppercase tracking-wider text-slate-400">
+                <th className="px-6 py-4">ID</th>
                 <th className="px-6 py-4">Título</th>
                 <th className="px-6 py-4">Área</th>
                 <th className="px-6 py-4">Estado</th>
                 <th className="px-6 py-4">Asignado a</th>
                 <th className="px-6 py-4">Fecha de Creación</th>
+                <th className="px-6 py-4">Fecha de Cierre</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-sm text-slate-300">
@@ -258,6 +299,9 @@ export function AdminTicketsView() {
                   }}
                   className="hover:bg-slate-800/40 cursor-pointer transition-colors duration-150 group"
                 >
+                  <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 max-w-xs truncate">
+                    {ticket.id}
+                  </td>
                   <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 max-w-xs truncate">
                     {ticket.title}
                   </td>
@@ -287,6 +331,9 @@ export function AdminTicketsView() {
                   </td>
                   <td className="px-6 py-4 text-slate-400 font-mono text-xs">
                     {formatDate(ticket.createdAt)}
+                  </td>
+                  <td className="px-6 py-4 text-slate-400 font-mono text-xs">
+                    {formatDate(ticket.assignedAt)}
                   </td>
                 </tr>
               ))}

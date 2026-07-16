@@ -92,9 +92,10 @@ async startTicketProcess(ticketId) {
 },
 
 // Cambiar estado a RESUELTO
-async solveTicket(ticketId) {
+async solveTicket(ticketId, resolutionText) {
   try {
-    const data = await api.put(`/tickets/${ticketId}/solve`);
+    const data = await api.put(`/tickets/${ticketId}/solve`, {"message": resolutionText } );
+    console.log(data);
     return data;
   } catch (error) {
     console.error('Error solving ticket:', error);

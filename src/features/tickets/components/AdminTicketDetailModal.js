@@ -12,7 +12,7 @@ export function TicketDetailModal({ ticket, onClose }) {
     const [loadingChat, setLoadingChat] = useState(true);
     const [newMessage, setNewMessage] = useState('');
     const [sending, setSending] = useState(false);
-    
+
     // Estados para asignación
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [admins, setAdmins] = useState([]);
@@ -21,7 +21,9 @@ export function TicketDetailModal({ ticket, onClose }) {
     const [assigning, setAssigning] = useState(false);
     const [ticketData, setTicketData] = useState(ticket);
     const [loadingTicket, setLoadingTicket] = useState(false);
-    
+    const [resolutionText, setResolutionText] = useState('');
+    const textareaRef = useRef(null);
+
     // Nuevos estados para acciones de estado
     const [updatingStatus, setUpdatingStatus] = useState(false);
 
@@ -105,7 +107,7 @@ export function TicketDetailModal({ ticket, onClose }) {
         try {
             setAssigning(true);
             await ticketsService.assignTicket(ticketData.id, selectedAdminId);
-            
+
             const adminAsignado = admins.find(a => a.id === selectedAdminId);
             if (adminAsignado) {
                 setTicketData({
@@ -113,10 +115,10 @@ export function TicketDetailModal({ ticket, onClose }) {
                     assignedTo: adminAsignado
                 });
             }
-            
+
             setShowAssignModal(false);
             setSelectedAdminId(null);
-            
+
             alert("✅ Administrador asignado correctamente.");
         } catch (err) {
             console.error("Error asignando admin:", err);
@@ -129,7 +131,7 @@ export function TicketDetailModal({ ticket, onClose }) {
     // NUEVA FUNCIÓN: Cambiar estado a EN_PROGRESO
     const handleStartProcess = async () => {
         if (!ticketData?.id) return;
-        
+
         if (!confirm("¿Estás seguro de que quieres iniciar el proceso de este ticket?")) {
             return;
         }
@@ -137,13 +139,13 @@ export function TicketDetailModal({ ticket, onClose }) {
         try {
             setUpdatingStatus(true);
             await ticketsService.startTicketProcess(ticketData.id);
-            
+
             // Actualizar el ticket localmente
             setTicketData({
                 ...ticketData,
                 status: 'EN_PROGRESO'
             });
-            
+
             alert("✅ Ticket en proceso.");
         } catch (err) {
             console.error("Error iniciando proceso:", err);
@@ -156,21 +158,21 @@ export function TicketDetailModal({ ticket, onClose }) {
     // NUEVA FUNCIÓN: Cambiar estado a RESUELTO
     const handleSolveTicket = async () => {
         if (!ticketData?.id) return;
-        
+
         if (!confirm("¿Estás seguro de que quieres finalizar este ticket?")) {
             return;
         }
 
         try {
             setUpdatingStatus(true);
-            await ticketsService.solveTicket(ticketData.id);
-            
+            await ticketsService.solveTicket(ticketData.id, resolutionText.trim());
+
             // Actualizar el ticket localmente
             setTicketData({
                 ...ticketData,
                 status: 'RESUELTO'
             });
-            
+
             alert("✅ Ticket resuelto.");
         } catch (err) {
             console.error("Error resolviendo ticket:", err);
@@ -190,6 +192,13 @@ export function TicketDetailModal({ ticket, onClose }) {
         }
     };
 
+    const handleTextareaChange = (e) => {
+        setResolutionText(e.target.value);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
     // Si no hay ticket, no renderizar nada
     if (!ticket) {
         return null;
@@ -201,7 +210,7 @@ export function TicketDetailModal({ ticket, onClose }) {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs">
                 <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl p-8">
                     <p className="text-red-400 text-center">Error al cargar los datos del ticket.</p>
-                    <button 
+                    <button
                         onClick={handleClose}
                         className="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                     >
@@ -225,7 +234,7 @@ export function TicketDetailModal({ ticket, onClose }) {
     return (
         <>
             {/* MODAL PRINCIPAL */}
-            <div 
+            <div
                 className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs"
                 onClick={(e) => {
                     if (e.target === e.currentTarget) {
@@ -291,7 +300,7 @@ export function TicketDetailModal({ ticket, onClose }) {
                             <div className="border-t border-slate-800/60 pt-3">
                                 <div className="flex items-center justify-between">
                                     <span className="block text-slate-500 font-medium text-xs">Asignado a</span>
-                                    
+
                                     {ticketData.status === 'ABIERTO' && !ticketData.assignedTo && (
                                         <button
                                             onClick={() => setShowAssignModal(true)}
@@ -304,7 +313,7 @@ export function TicketDetailModal({ ticket, onClose }) {
                                         </button>
                                     )}
                                 </div>
-                                
+
                                 {ticketData.assignedTo ? (
                                     <div className="mt-2 flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2">
                                         <div className="w-6 h-6 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 text-xs font-bold">
@@ -324,7 +333,7 @@ export function TicketDetailModal({ ticket, onClose }) {
                                     </div>
                                 ) : (
                                     <div className="mt-2 text-sm text-slate-400 italic">
-                                        {ticketData.status === 'ABIERTO' 
+                                        {ticketData.status === 'ABIERTO'
                                             ? 'Sin asignar - Haz clic en el botón para asignar un administrador'
                                             : 'Sin asignar'}
                                     </div>
@@ -333,55 +342,76 @@ export function TicketDetailModal({ ticket, onClose }) {
 
                             {/* NUEVA SECCIÓN: Acciones por estado */}
                             <div className="border-t border-slate-800/60 pt-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="block text-slate-500 font-medium text-xs">Acciones</span>
-                                    
-                                    <div className="flex gap-2">
-                                        {/* Si está ABIERTO */}
-                                        {ticketData.status === 'ABIERTO' && (
-                                            <button
-                                                onClick={handleStartProcess}
-                                                disabled={updatingStatus}
-                                                className="text-xs px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {updatingStatus ? (
-                                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                ) : (
-                                                    <>
-                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                        </svg>
-                                                        Iniciar proceso
-                                                    </>
-                                                )}
-                                            </button>
-                                        )}
+                                {/* Contenedor principal: ahora es flex-col si está EN_PROCESO para dar espacio al textarea abajo */}
+                                <div className={`flex ${ticketData.status === 'EN_PROCESO' ? 'flex-col gap-3' : 'items-center justify-between'}`}>
 
-                                        {/* Si está EN_PROGRESO */}
-                                        {ticketData.status === 'EN_PROGRESO' && (
-                                            <button
-                                                onClick={handleSolveTicket}
-                                                disabled={updatingStatus}
-                                                className="text-xs px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {updatingStatus ? (
-                                                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                ) : (
-                                                    <>
-                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                        Finalizar
-                                                    </>
-                                                )}
-                                            </button>
-                                        )}
+                                    {/* Fila superior: Acciones y Botones */}
+                                    <div className="flex items-center justify-between w-full">
+                                        <span className="block text-slate-500 font-medium text-xs">Acciones</span>
 
-                                        {/* Si está RESUELTO */}
-                                        {ticketData.status === 'RESUELTO' && (
-                                            <span className="text-xs text-slate-400 italic">Ticket finalizado</span>
-                                        )}
+                                        <div className="flex gap-2">
+                                            {/* Si está ABIERTO */}
+                                            {ticketData.status === 'ABIERTO' && (
+                                                <button
+                                                    onClick={handleStartProcess}
+                                                    disabled={updatingStatus}
+                                                    className="text-xs px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {updatingStatus ? (
+                                                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            Iniciar proceso
+                                                        </>
+                                                    )}
+                                                </button>
+                                            )}
+
+                                            {/* Si está EN_PROCESO */}
+                                            {ticketData.status === 'EN_PROCESO' && (
+                                                <button
+                                                    onClick={handleSolveTicket}
+                                                /* El botón ahora se deshabilita si está cargando O si el texto está vacío / son solo espacios */
+        
+                                                    disabled={updatingStatus || !resolutionText.trim()}
+                                                    className="text-xs px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-1 disabled:opacity-40 disabled:hover:bg-green-600 disabled:cursor-not-allowed"
+                                                >
+                                                    {updatingStatus ? (
+                                                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                            Resolver
+                                                        </>
+                                                    )}
+                                                </button>
+                                            )}
+
+                                            {/* Si está RESUELTO */}
+                                            {ticketData.status === 'RESUELTO' && (
+                                                <span className="text-xs text-slate-400 italic">Ticket finalizado</span>
+                                            )}
+                                        </div>
                                     </div>
+
+                                    {/* Sección del Campo de Texto (Solo visible en EN_PROCESO) */}
+                                    {ticketData.status === 'EN_PROCESO' && (
+                                        <div className="w-full">
+                                            <textarea
+                                                ref={textareaRef}
+                                                rows={1}
+                                                value={resolutionText}
+                                                onChange={handleTextareaChange}
+                                                placeholder="Escribe una breve nota de resolución para poder cerrar el ticket..."
+                                                className="w-full text-xs px-3 py-2 bg-slate-900/50 border border-slate-800 text-slate-200 placeholder-slate-500 rounded-lg focus:outline-none focus:border-green-600/50 resize-none overflow-hidden transition-colors min-h-[32px] max-h-[120px]"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -466,7 +496,7 @@ export function TicketDetailModal({ ticket, onClose }) {
 
             {/* MODAL DE ASIGNACIÓN */}
             {showAssignModal && (
-                <div 
+                <div
                     className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
@@ -476,7 +506,7 @@ export function TicketDetailModal({ ticket, onClose }) {
                     }}
                 >
                     <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl max-h-[80vh] flex flex-col">
-                        
+
                         <header className="p-6 border-b border-slate-800 flex justify-between items-center flex-shrink-0">
                             <h3 className="text-lg font-bold text-white">Asignar administrador</h3>
                             <button
@@ -507,8 +537,8 @@ export function TicketDetailModal({ ticket, onClose }) {
                                             key={admin.id}
                                             onClick={() => setSelectedAdminId(admin.id)}
                                             className={`p-3 rounded-xl border-2 transition-all cursor-pointer
-                                                ${selectedAdminId === admin.id 
-                                                    ? 'border-blue-500 bg-blue-600/10' 
+                                                ${selectedAdminId === admin.id
+                                                    ? 'border-blue-500 bg-blue-600/10'
                                                     : 'border-slate-700 hover:border-slate-500 bg-slate-800/30'}`}
                                         >
                                             <div className="flex items-center gap-3">
