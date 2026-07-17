@@ -11,6 +11,7 @@ export function AdminUsersView() {
   const [error, setError] = useState(null);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null); // Bloquea solo la fila del usuario mutado
+  const [passwordLoadingId, setPasswordLoadingId] = useState(null);
 
   // 1. Cargar el listado al montar el componente
   useEffect(() => {
@@ -33,17 +34,17 @@ export function AdminUsersView() {
     try {
       setActionLoadingId(userItem.id);
       const isAdmin = userItem.role === 'ADMIN';
-      
+
       if (isAdmin) {
         // Quitar admin
         await usersService.demoteToUser(userItem.id);
-        setUsers((prev) => 
+        setUsers((prev) =>
           prev.map((u) => u.id === userItem.id ? { ...u, role: 'USER' } : u)
         );
       } else {
         // Hacer admin
         await usersService.promoteToAdmin(userItem.id);
-        setUsers((prev) => 
+        setUsers((prev) =>
           prev.map((u) => u.id === userItem.id ? { ...u, role: 'ADMIN' } : u)
         );
       }
@@ -53,6 +54,32 @@ export function AdminUsersView() {
       setActionLoadingId(null);
     }
   };
+//Reiniciar contraseñas
+  const handleToggleForcePassword = async (userItem) => {
+  // No es necesario verificar porque el botón ya está deshabilitado,
+  // pero lo dejamos por seguridad
+  if (userItem.needNewPassword === true) return;
+  
+  try {
+    setPasswordLoadingId(userItem.id);
+    
+    // Cambiar de false a true
+    await usersService.toggleForcePassword(userItem.id, true);
+    
+    // Actualizar el estado local
+    setUsers((prev) => 
+      prev.map((u) => 
+        u.id === userItem.id 
+          ? { ...u, needNewPassword: true } 
+          : u
+      )
+    );
+  } catch (err) {
+    alert("No se pudo actualizar la configuración de contraseña.");
+  } finally {
+    setPasswordLoadingId(null);
+  }
+};
 
   // 3. Callback al registrar con éxito un usuario
   const handleUserCreated = (newUser) => {
@@ -91,11 +118,12 @@ export function AdminUsersView() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-800 bg-slate-950 text-xs font-bold uppercase tracking-wider text-slate-400">
-              <th className="px-6 py-4">Colaborador</th>
+              <th className="px-6 py-4">Nombre</th>
               <th className="px-6 py-4">Correo Electrónico</th>
               <th className="px-6 py-4">Compañía</th>
               <th className="px-6 py-4">Rol de Sistema</th>
-              <th className="px-6 py-4 text-right">Acciones de Acceso</th>
+              <th className="px-6 py-4">Forzar cambio de contraseña</th>
+              <th className="px-6 py-4">Acciones de Acceso</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-sm text-slate-300">
@@ -106,13 +134,30 @@ export function AdminUsersView() {
                 <td className="px-6 py-4 text-slate-400">{item.company}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-0.5 text-[10px] font-bold rounded-sm tracking-wide border uppercase
-                    ${item.role === 'ADMIN' 
-                      ? 'bg-red-500/10 text-red-400 border-red-500/20' 
+                    ${item.role === 'ADMIN'
+                      ? 'bg-red-500/10 text-red-400 border-red-500/20'
                       : 'bg-slate-700/20 text-slate-400 border-slate-700/30'}`}
                   >
                     {item.role}
                   </span>
                 </td>
+                <td className="px-6 py-4 text-right">
+  <button
+    disabled={passwordLoadingId !== null || item.needNewPassword == true}
+    onClick={() => handleToggleForcePassword(item)}
+    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 border
+      ${item.needNewPassword === true
+        ? 'border-gray-500/20 text-gray-500 bg-gray-500/5 cursor-not-allowed opacity-50'
+        : 'border-green-500/30 text-green-400 bg-green-500/5 hover:bg-green-500/10 cursor-pointer'}`}
+  >
+    {passwordLoadingId === item.id 
+      ? '...' 
+      : item.needNewPassword === true 
+        ? '🔒 Reseteo pendiente' 
+        : '🔓 Resetear'}
+  </button>
+</td>
+
                 <td className="px-6 py-4 text-right">
                   <button
                     disabled={actionLoadingId !== null}
@@ -122,8 +167,8 @@ export function AdminUsersView() {
                         ? 'border-red-500/30 text-red-400 bg-red-500/5 hover:bg-red-500/10'
                         : 'border-blue-500/30 text-blue-400 bg-blue-500/5 hover:bg-blue-500/10'}`}
                   >
-                    {actionLoadingId === item.id 
-                      ? '...' 
+                    {actionLoadingId === item.id
+                      ? '...'
                       : item.role === 'ADMIN' ? '✕ Quitar Admin' : '✦ Hacer Admin'}
                   </button>
                 </td>
@@ -135,8 +180,8 @@ export function AdminUsersView() {
 
       {/* Renderizado condicional del modal de creación */}
       {showRegisterModal && (
-        <RegisterUserModal 
-          onClose={() => setShowRegisterModal(false)} 
+        <RegisterUserModal
+          onClose={() => setShowRegisterModal(false)}
           onUserCreated={handleUserCreated}
         />
       )}

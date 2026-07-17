@@ -108,7 +108,7 @@ export function AdminTicketsView() {
     switch (status) {
       case 'ABIERTO':
         return base + "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-      case 'EN_PROGRESO':
+      case 'EN_PROCESO':
         return base + "bg-amber-500/10 text-amber-400 border border-amber-500/20";
       case 'RESUELTO':
         return base + "bg-slate-500/10 text-slate-400 border border-slate-500/20";
@@ -314,7 +314,7 @@ export function AdminTicketsView() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={getStatusBadge(ticket.status)}>
-                      {ticket.status === 'EN_PROGRESO' ? 'EN PROCESO' : ticket.status}
+                      {ticket.status === 'EN_PROCESO' ? 'EN PROCESO' : ticket.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-400">

@@ -1,7 +1,7 @@
 // src/lib/api.js
 
-// const BASE_URL = 'https://tickets-production-3c72.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
-const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
+const BASE_URL = 'https://tickets-production-3c72.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
+// const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
 
 export const api = {
   async request(endpoint, options = {}) {
@@ -21,6 +21,8 @@ export const api = {
 
     try {
       const response = await fetch(url, defaultOptions);
+      console.log(`Request to ${url} body ${defaultOptions.body} `);
+      console.log(response);
 
       // Si la respuesta no es exitosa (4xx o 5xx), lanzamos un error estructurado
       if (!response.ok) {

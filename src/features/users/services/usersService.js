@@ -20,5 +20,12 @@ export const usersService = {
   // PUT /api/users/{id}/quitadmin (Degrada el rol de un usuario a USER)
   async demoteToUser(userId) {
     return api.put(`/users/${userId}/quitadmin`);
+  },
+  // En usersService.js
+ async toggleForcePassword(userId)  {
+  let myId="" + userId;
+  return api.put(`/auth/reset_password`, { id: myId });
   }
+
+
 };
