@@ -247,10 +247,16 @@ export function TicketDetailModal({ ticket, onClose }) {
                     {/* Cabecera */}
                     <header className="p-6 border-b border-slate-800 flex justify-between items-start gap-4 flex-shrink-0">
                         <div className="flex-1 min-w-0">
-                            <span className="text-xs font-mono font-bold text-blue-400">AUDITORÍA DE CASO</span>
+                            <span className="text-xs font-mono font-bold text-blue-400">Detalles de ticket</span>
+                           <div className="flex flex-wrap gap-8"> 
                             <h3 className="text-xl font-bold text-white mt-0.5 truncate">
-                                {ticketData?.title || 'Ticket'}
+                                Ticket: #{ticketData.id}
                             </h3>
+                            <h3 className="text-xl font-bold text-white mt-0.5 truncate">
+                                Título: {ticketData?.title || 'Ticket'}
+                            </h3>
+                            
+                            </div>
                         </div>
                         <button
                             onClick={handleClose}
@@ -258,8 +264,10 @@ export function TicketDetailModal({ ticket, onClose }) {
                         >
                             ✕
                         </button>
+                        
+                        
                     </header>
-
+                    
                     {/* Cuerpo */}
                     <div className="p-6 overflow-y-auto space-y-6 flex-1">
 
