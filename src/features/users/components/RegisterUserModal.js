@@ -67,15 +67,24 @@ export function RegisterUserModal({ onClose, onUserCreated }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Compañía / Empresa</label>
-            <input
-              type="text"
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Compañía / Empresa
+            </label>
+            <select
               required
-              placeholder="Ej: serviceHub"
               value={formData.company}
               onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder-slate-600 focus:outline-hidden focus:border-blue-500"
-            />
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-hidden focus:border-blue-500 appearance-none"
+            >
+              <option value="" disabled className="text-slate-600">
+                Selecciona una empresa...
+              </option>
+              <option value="GLADIO" className="bg-slate-950 text-slate-200">Gladio</option>
+              <option value="RS SEGURIDAD" className="bg-slate-950 text-slate-200">Rseguridad</option>
+              <option value="BLUCOBALTO" className="bg-slate-950 text-slate-200">Blucobalto</option>
+              <option value="NPLUS" className="bg-slate-950 text-slate-200">Nplus</option>
+              <option value="ROSSOMORO" className="bg-slate-950 text-slate-200">Rossomoro</option>
+            </select>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

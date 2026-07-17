@@ -30,8 +30,14 @@ export default function TicketsPage() {
       </RoleShell>
     );
   }
-
+  else if (user.role === 'USER' && user.needPasswordChange) {
   return (
+    <RoleShell requireRole="PASSWORD_CHANGE">
+      <UserTicketView />
+    </RoleShell>
+  );
+}
+return (
     <RoleShell requireRole="USER">
       <UserTicketView />
     </RoleShell>
