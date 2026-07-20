@@ -282,6 +282,7 @@ export function AdminTicketsView() {
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950 text-xs font-bold uppercase tracking-wider text-slate-400">
                 <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Empresa</th>
                 <th className="px-6 py-4">Título</th>
                 <th className="px-6 py-4">Área</th>
                 <th className="px-6 py-4">Estado</th>
@@ -301,6 +302,10 @@ export function AdminTicketsView() {
                 >
                   <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 max-w-xs truncate">
                     {ticket.id}
+                  </td>
+                  <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 max-w-xs truncate">
+                    {ticket.user.company}
+                    
                   </td>
                   <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 max-w-xs truncate">
                     {ticket.title}

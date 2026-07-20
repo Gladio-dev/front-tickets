@@ -1,7 +1,8 @@
 // src/lib/api.js
 
-const BASE_URL = 'https://tickets-production-3c72.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
-// const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
+// const BASE_URL = 'https://back-tickets-staging.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
+// const BASE_URL = 'https://back-tickets-staging.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
+const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
 
 export const api = {
   async request(endpoint, options = {}) {
