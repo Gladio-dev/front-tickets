@@ -1,7 +1,7 @@
 // src/lib/api.js
 
-// const BASE_URL = 'https://back-tickets-staging.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
-// const BASE_URL = 'https://back-tickets-staging.up.railway.app/api'; // Ajusta el puerto y ruta según tu Spring Boot
+// const BASE_URL = 'https://tickets-servhub.up.railway.app/api'; // production
+// const BASE_URL = 'https://tickets-servhub-staging.up.railway.app/api'; // staging
 const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
 
 export const api = {
@@ -28,6 +28,7 @@ export const api = {
       // Si la respuesta no es exitosa (4xx o 5xx), lanzamos un error estructurado
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.log(errorData);
         throw {
           status: response.status,
           message: errorData.message || 'Ocurrió un error en la petición',

@@ -54,32 +54,32 @@ export function AdminUsersView() {
       setActionLoadingId(null);
     }
   };
-//Reiniciar contraseñas
+  //Reiniciar contraseñas
   const handleToggleForcePassword = async (userItem) => {
-  // No es necesario verificar porque el botón ya está deshabilitado,
-  // pero lo dejamos por seguridad
-  if (userItem.needNewPassword === true) return;
-  
-  try {
-    setPasswordLoadingId(userItem.id);
-    
-    // Cambiar de false a true
-    await usersService.toggleForcePassword(userItem.id, true);
-    
-    // Actualizar el estado local
-    setUsers((prev) => 
-      prev.map((u) => 
-        u.id === userItem.id 
-          ? { ...u, needNewPassword: true } 
-          : u
-      )
-    );
-  } catch (err) {
-    alert("No se pudo actualizar la configuración de contraseña.");
-  } finally {
-    setPasswordLoadingId(null);
-  }
-};
+    // No es necesario verificar porque el botón ya está deshabilitado,
+    // pero lo dejamos por seguridad
+    if (userItem.active === false) return;
+
+    try {
+      setPasswordLoadingId(userItem.id);
+
+      // Cambiar de true a false
+      await usersService.toggleForcePassword(userItem.id);
+
+      // Actualizar el estado local
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userItem.id
+            ? { ...u, active: false }
+            : u
+        )
+      );
+    } catch (err) {
+      alert("No se pudo actualizar la configuración de contraseña." + err.message);
+    } finally {
+      setPasswordLoadingId(null);
+    }
+  };
 
   // 3. Callback al registrar con éxito un usuario
   const handleUserCreated = (newUser) => {
@@ -142,21 +142,22 @@ export function AdminUsersView() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-  <button
-    disabled={passwordLoadingId !== null || item.needNewPassword == true}
-    onClick={() => handleToggleForcePassword(item)}
-    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 border
-      ${item.needNewPassword === true
-        ? 'border-gray-500/20 text-gray-500 bg-gray-500/5 cursor-not-allowed opacity-50'
-        : 'border-green-500/30 text-green-400 bg-green-500/5 hover:bg-green-500/10 cursor-pointer'}`}
-  >
-    {passwordLoadingId === item.id 
-      ? '...' 
-      : item.needNewPassword === true 
-        ? '🔒 Reseteo pendiente' 
-        : '🔓 Resetear'}
-  </button>
-</td>
+                  <button
+                    disabled={!item.active }
+                    onClick={() => handleToggleForcePassword(item)}
+                    
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 border
+      ${item.active === false
+                        ? 'border-gray-500/20 text-gray-500 bg-gray-500/5 cursor-not-allowed opacity-50'
+                        : 'border-green-500/30 text-green-400 bg-green-500/5 hover:bg-green-500/10 cursor-pointer'}`}
+                  >
+                    {passwordLoadingId === item.id
+                      ? '...'
+                      : item.active !== true
+                        ? '🔒 Inicio pendiente'
+                        : '🔓 Resetear'}
+                  </button>
+                </td>
 
                 <td className="px-6 py-4 text-right">
                   <button
