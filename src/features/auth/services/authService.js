@@ -18,6 +18,10 @@ export const authService = {
     return api.post('/auth/change_password', { email, oldPassword, newPassword });
   },
 
+  async activate(uuid, password) {
+    return api.put('/auth/activate', { password, uuid });
+  },
+
   // Cambiado a resetPassword y pasando el email en el body
   async resetPassword(email) {
     return api.post('/auth/reset_password', { email });
