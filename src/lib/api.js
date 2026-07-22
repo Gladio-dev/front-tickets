@@ -2,7 +2,7 @@
 
 // const BASE_URL = 'https://tickets-servhub.up.railway.app/api'; // production
 // const BASE_URL = 'https://tickets-servhub-staging.up.railway.app/api'; // staging
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://tickets-servhub.up.railway.app/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 // const BASE_URL = 'http://localhost:8080/api'; // Ajusta el puerto y ruta según tu Spring Boot
 
 export const api = {
